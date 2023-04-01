@@ -1,16 +1,5 @@
 import flet
-from flet import (
-    Checkbox,
-    Column,
-    FloatingActionButton,
-    IconButton,
-    Page,
-    Row,
-    TextField,
-    UserControl,
-    colors,
-    icons,
-)
+from flet import *
 
 
 class Task(UserControl):

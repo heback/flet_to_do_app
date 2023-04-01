@@ -1,29 +1,24 @@
 import flet
-from flet import (
-    Checkbox,
-    Column,
-    FloatingActionButton,
-    Page,
-    Row,
-    TextField,
-    UserControl,
-    icons,
-)
+from flet import *
 
 
 class TodoApp(UserControl):
     def build(self):
-        self.new_task = TextField(hint_text="Whats needs to be done?", expand=True)
+        self.new_task = TextField(hint_text="Whats needs to be done?",
+                                  expand=True)
         self.tasks_view = Column()
 
-        # application's root control (i.e. "view") containing all other controls
+        # application's root control (i.e. "view")
+        # containing all other controls
         return Column(
             width=600,
             controls=[
                 Row(
                     controls=[
                         self.new_task,
-                        FloatingActionButton(icon=icons.ADD, on_click=self.add_clicked),
+                        FloatingActionButton(
+                            icon=icons.ADD,
+                            on_click=self.add_clicked),
                     ],
                 ),
                 self.tasks_view,
@@ -31,7 +26,9 @@ class TodoApp(UserControl):
         )
 
     def add_clicked(self, e):
-        self.tasks_view.controls.append(Checkbox(label=self.new_task.value))
+        self.tasks_view.controls.append(
+            Checkbox(label=self.new_task.value)
+        )
         self.new_task.value = ""
         self.update()
 
@@ -49,3 +46,4 @@ def main(page: Page):
 
 
 flet.app(target=main)
+
