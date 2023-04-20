@@ -7,6 +7,52 @@ import datetime
 # 프로젝트 설정 > 서비스 계정 메뉴로 가서
 # 파이선 코드 복사해서 가져오고 private key 생성 후 프로젝트 폴더로 복사
 
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import db
+
+cred = credentials.Certificate("serviceAccount.json")
+firebase_admin.initialize_app(cred, {
+    'databaseURL': 'https://flet-course-default-rtdb.firebaseio.com/'
+})
+
+
+# DB 관리 클래스
+class DB:
+
+    ref = None
+
+    @staticmethod
+    def connect_db():
+
+        try:
+            DB.ref = db.reference('/todos')
+        except Exception as e:
+            print(e)
+
+    def read_db(self):
+        return DB.ref.get()
+
+    def insert_db(self, values):
+        new_ref = DB.ref.push()
+        new_key = new_ref.key
+        new_ref.set(values)
+        return new_key
+
+    def delete_db(self, key):
+        DB.ref.child(key).set({})
+
+    def update_db(self, key, values):
+        DB.ref.child(key).update(values)
+
+    def update_task_state(self, key, value):
+        DB.ref.child(key).update(value)
+
+# DB 연결 및 DB 객체 생성
+DB.connect_db()
+db = DB()
+
+
 class Task(UserControl):
 
     def __init__(self, task_name, task_completed, task_date, task_status_change, task_delete, task_id = None):
@@ -84,7 +130,7 @@ class Task(UserControl):
         self.edit_view.visible = False
 
         self.task_name = self.edit_name.value
-        db.updateDatabase((self.task_name, self.task_id))
+        db.update_db( self.task_id, {'task': self.task_name})
         self.update()
 
     def status_changed(self, e):
@@ -93,7 +139,7 @@ class Task(UserControl):
         self.update()
 
     def delete_clicked(self, e):
-        db.deleteDatabase(self.task_id)
+        db.delete_db(self.task_id)
         self.task_delete(self)
         self.update()
 
@@ -102,14 +148,16 @@ class TodoApp(UserControl):
 
     def build(self):
 
-        task_list = db.readDatabase()
+        task_list = db.read_db()
 
         self.new_task = TextField(hint_text="Whats needs to be done?", expand=True)
         self.tasks = Column()
 
-        for t in task_list:
-            task = Task(t[1], bool(t[2]), t[3], self.task_status_change, self.task_delete, t[0])
-            self.tasks.controls.insert(0, task)
+        if task_list is not None:
+
+            for id, t in task_list.items():
+                task = Task(t['task'], t['completed'], t['reg_date'], self.task_status_change, self.task_delete, id)
+                self.tasks.controls.insert(0, task)
 
         self.filter = Tabs(
             selected_index=0,
@@ -142,7 +190,11 @@ class TodoApp(UserControl):
 
     def add_clicked(self, e):
         t = datetime.datetime.now()
-        id = db.insertDatabase([self.new_task.value, t])
+        id = db.insert_db({
+            'task': self.new_task.value,
+            'completed': False,
+            'reg_date': str(t)
+        })
         task = Task(self.new_task.value, False, t, self.task_status_change, self.task_delete, id)
         self.tasks.controls.insert(0, task)
         self.new_task.value = ""
@@ -150,7 +202,7 @@ class TodoApp(UserControl):
 
     def task_status_change(self, task):
         # task 상태 업데이트
-        db.updateTaskState(task.task_id, task.task_completed)
+        db.update_task_state(task.task_id, {'completed': task.task_completed})
         self.update()
 
     def task_delete(self, task):
