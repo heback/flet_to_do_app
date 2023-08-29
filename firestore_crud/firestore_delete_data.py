@@ -12,7 +12,7 @@ db=firestore.client()
 db.collection('persons').document("p1").delete()
 
 # Delete a field - known ID
-db.collection('persons').document("p2").update("age", firestore.DELETE_FIELD)
+db.collection('persons').document("p2").tab_update()
 
 # Delete a document with a known ID
 docs = db.collection('persons').where("age", ">=", 50).get() # Get all documents with age >=50
@@ -24,7 +24,7 @@ for doc in docs:
 docs = db.collection('persons').where("age", ">=", 40).get() # Get all documents with age >=40
 for doc in docs:
     key = doc.id
-    db.collection('persons').document(key).update("age", firestore.DELETE_FIELD)
+    db.collection('persons').document(key).tab_update()
 
 # Delete all documents in a collection
 docs = db.collection('persons').get() # Get all data

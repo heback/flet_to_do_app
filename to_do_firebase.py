@@ -43,10 +43,10 @@ class DB:
         DB.ref.child(key).set({})
 
     def update_db(self, key, values):
-        DB.ref.child(key).update(values)
+        DB.ref.child(key).tab_update()
 
     def update_task_state(self, key, value):
-        DB.ref.child(key).update(value)
+        DB.ref.child(key).tab_update()
 
 # DB 연결 및 DB 객체 생성
 DB.connect_db()
