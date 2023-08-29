@@ -256,17 +256,17 @@ class TodoApp(ft.UserControl):
 
 def main(page: ft.Page):
     page.title = "ToDo App"
-    page.horizontal_alignment = "center"
+    page.horizontal_alignment = ft.MainAxisAlignment.CENTER
     page.window_width = 500
     page.window_height = 600
     page.window_maximizable = False
     page.window_minimizable = False
     page.update()
 
-    # create application instance
+    # TodoApp 인스턴스 생성
     app = TodoApp(db)
 
-    # add application's root control to the page
+    # TodoApp 객체를 page에 추가
     page.add(app)
 
 
